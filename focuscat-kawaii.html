@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FocusCat — Kawaii</title>
+<link href="https://fonts.googleapis.com/css2?family=Varela+Round&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#faf7f2; --card:#ffffff; --ink:#5a5254; --dim:#a89fa2; --line-ui:#eee7de;
+    --accent:#f4a259;
+    --outline:#4a4045;      /* thin, consistent, warm dark */
+    --face:#4a4045;         /* eye/mouth color (light on the dark cat) */
+    --coat:#ffffff; --belly:#ffffff; --innerear:#f3b8c0; --whisker:#4a404573;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);font-family:'Varela Round',sans-serif;color:var(--ink);
+    min-height:100vh;display:flex;flex-direction:column;align-items:center;gap:16px;padding:26px 16px 60px}
+  h1{font-size:22px}
+  h1 span{color:var(--accent)}
+  .bar{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;align-items:center;
+    background:var(--card);border:1.5px solid var(--line-ui);border-radius:999px;padding:8px 12px}
+  .chip{border:none;background:transparent;color:var(--dim);border-radius:999px;
+    padding:8px 14px;font-family:inherit;font-size:13.5px;cursor:pointer;transition:.15s}
+  .chip[aria-pressed="true"]{background:var(--accent);color:#fff}
+  .sep{width:1.5px;height:20px;background:var(--line-ui)}
+  .swb{width:30px;height:30px;border-radius:50%;border:2.5px solid var(--line-ui);cursor:pointer;padding:0;transition:.12s;position:relative;overflow:hidden}
+  .swb[aria-pressed="true"]{border-color:var(--outline);transform:scale(1.12)}
+  .swb i{position:absolute;inset:0}
+  .glasslbl{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--dim);cursor:pointer;padding:0 6px}
+  .glasslbl input{accent-color:var(--accent);width:15px;height:15px}
+  #stage{position:relative;width:min(880px,96vw);aspect-ratio:9/6;background:var(--card);
+    border:1.5px solid var(--line-ui);border-radius:26px;overflow:hidden;
+    box-shadow:0 20px 50px #d8c9b433}
+  #speech{position:absolute;background:#fff;border:2.5px solid var(--outline);color:var(--outline);
+    border-radius:14px;padding:5px 12px;font-size:14px;opacity:0;transition:opacity .2s;
+    transform:translate(-50%,-100%);white-space:nowrap}
+  #speech.show{opacity:1}
+  #speech::after{content:"";position:absolute;top:100%;left:50%;margin-left:-6px;
+    border:6px solid transparent;border-top-color:var(--outline)}
+  .hint{color:var(--dim);font-size:13px}
+
+  /* ---------- gentle motion ---------- */
+  .breathe{animation:br 3.8s ease-in-out infinite;transform-origin:460px 430px}
+  @keyframes br{0%,100%{transform:translateY(0)}50%{transform:translateY(2.5px)}}
+  .tail{animation:tl 4.2s ease-in-out infinite;transform-origin:588px 430px}
+  @keyframes tl{0%,100%{transform:rotate(-4deg)}50%{transform:rotate(6deg)}}
+  .earL{animation:fl 8.5s ease-in-out infinite;transform-origin:392px 218px}
+  @keyframes fl{0%,91%,100%{transform:rotate(0)}93%{transform:rotate(-8deg)}96%{transform:rotate(2deg)}}
+  #head{transform-origin:460px 360px;transform:rotate(3deg);transition:transform .8s cubic-bezier(.35,1.3,.4,1)}
+  #stage.look-laptop #head{transform:rotate(-4deg) translateY(-4px)}
+  #stage.stare #head{transform:rotate(-1deg) translateY(-7px)}
+  /* reading = happy closed-arc eyes; glance/stare = tiny oval eyes */
+  .eyesOpen{opacity:0;transform-box:fill-box;transform-origin:50% 50%;
+    transition:opacity .18s, transform .5s cubic-bezier(.35,1.3,.4,1)}
+  .eyesClosed{opacity:1;transition:opacity .18s}
+  #stage.look-laptop .eyesOpen,#stage.stare .eyesOpen{opacity:1}
+  #stage.look-laptop .eyesClosed,#stage.stare .eyesClosed{opacity:0}
+  #stage.look-laptop .eyesOpen{transform:translate(-7px,-2px)}
+  /* cute frown: soft squint + little worried-annoyed brows, not wide-eyed */
+  #stage.stare .eyesOpen{transform:scaleY(.68) translateY(2px)}
+  .browsS{opacity:0;transition:opacity .25s}
+  #stage.stare .browsS{opacity:1}
+  #stage.stare .earL{transform:rotate(-10deg)}
+  #stage.stare .earR{transform:rotate(10deg)}
+  .earR{transition:transform .35s;transform-origin:528px 218px}
+  .steam path{stroke-dasharray:4 10;animation:sf 3.4s linear infinite;opacity:.55}
+  .steam path:nth-child(2){animation-delay:-1.2s}
+  .steam path:nth-child(3){animation-delay:-2.3s}
+  @keyframes sf{from{stroke-dashoffset:56;transform:translateY(0)}to{stroke-dashoffset:0;transform:translateY(-9px)}}
+
+  /* walker: tiny waddle */
+  #walker{position:absolute;left:0;top:0;width:200px;height:225px;will-change:transform;transform-origin:top left;opacity:0}
+  .rock{animation:rock .55s ease-in-out infinite;transform-origin:100px 180px}
+  @keyframes rock{0%,100%{transform:rotate(2deg)}50%{transform:rotate(-2deg)}}
+  .pawL{animation:step .55s ease-in-out infinite}
+  .pawR{animation:step .55s ease-in-out infinite;animation-delay:-.275s}
+  @keyframes step{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+  .headbob{animation:hb .55s ease-in-out infinite;transform-origin:100px 110px}
+  @keyframes hb{0%,100%{transform:translateY(0) rotate(-1deg)}50%{transform:translateY(-2.5px) rotate(1deg)}}
+  .wtail{animation:wt .9s ease-in-out infinite;transform-origin:168px 158px}
+  @keyframes wt{0%,100%{transform:rotate(-7deg)}50%{transform:rotate(9deg)}}
+  #walker .mouthOpen{opacity:0}
+  #walker.meow .mouthOpen{opacity:1}
+  #walker.meow .mouthClosed{opacity:0}
+  #walker.meow{animation:sq .3s ease-out}
+  @keyframes sq{0%{scale:1 1}40%{scale:1.05 .95}100%{scale:1 1}}
+  .patch{display:none}
+  .show-mikan .patch-mikan{display:block}
+  .show-kuro .patch-kuro{display:block}
+  .show-latte .patch-latte{display:block}
+  .glassesOff .glasses{display:none}
+  @media (prefers-reduced-motion:reduce){
+    .breathe,.tail,.earL,.steam path,.rock,.pawL,.pawR,.headbob,.wtail{animation:none}
+  }
+</style>
+</head>
+<body>
+<h1>Focus<span>Cat</span> · kawaii edition</h1>
+<div class="bar">
+  <button class="chip" data-s="FOCUSED" aria-pressed="true">Focused</button>
+  <button class="chip" data-s="PHONE" aria-pressed="false">On phone</button>
+  <button class="chip" data-s="AWAY" aria-pressed="false">Away</button>
+  <div class="sep"></div>
+  <button class="swb" data-cat="mikan" aria-pressed="true" title="Mikan (orange)">
+    <i style="background:#f4a259"></i></button>
+  <button class="swb" data-cat="kuro" aria-pressed="false" title="Kuro (black)">
+    <i style="background:#3d3741"></i></button>
+  <button class="swb" data-cat="latte" aria-pressed="false" title="Shiro (white)">
+    <i style="background:#ffffff"></i></button>
+  <div class="sep"></div>
+  <label class="glasslbl"><input type="checkbox" id="glassBox"> glasses</label>
+</div>
+
+<div id="stage" class="glassesOff">
+  <svg id="scene" viewBox="0 0 900 600" xmlns="http://www.w3.org/2000/svg">
+    <g class="breathe">
+      <!-- tail: simple rounded tube (outline = wider stroke underneath) -->
+      <g class="tail">
+        <path d="M588 432 q60 -10 54 -74 q-2 -22 -20 -30" fill="none"
+          stroke="var(--outline)" stroke-width="30" stroke-linecap="round"/>
+        <path d="M588 432 q60 -10 54 -74 q-2 -22 -20 -30" fill="none"
+          stroke="var(--coat)" stroke-width="24" stroke-linecap="round"/>
+        <path class="patch patch-kuro" d="M636 342 q6 6 6 16" fill="none" stroke="#fff" stroke-width="24" stroke-linecap="round"/>
+        <path class="patch patch-latte" d="M612 420 q14 -4 24 -14 M634 392 q8 -8 8 -20" fill="none" stroke="#d9b98c" stroke-width="7" stroke-linecap="round"/>
+      </g>
+
+      <!-- small round body peeking above the desk -->
+      <path d="M352 470 q-8 -74 108 -76 q116 2 108 76 Z"
+        fill="var(--coat)" stroke="var(--outline)" stroke-width="3.5"/>
+      <path class="patch patch-kuro" d="M400 470 q4 -46 60 -48 q58 2 62 48 Z" fill="#fff"/>
+      <path class="patch patch-mikan" d="M520 404 q46 6 46 66 l-58 0 q16 -34 12 -66 Z" fill="#b7aca4"/>
+      <g class="patch patch-latte" stroke="#d9b98c" stroke-width="6" stroke-linecap="round" fill="none">
+        <path d="M382 428 q10 -6 20 -6"/><path d="M540 428 q-10 -6 -20 -6"/>
+      </g>
+
+      <!-- head: wide, soft, LOW-set tiny features -->
+      <g id="head">
+        <!-- ears: small rounded triangles -->
+        <g class="earL">
+          <path d="M382 252 L370 184 Q416 204 436 236 Z" fill="var(--coat)" stroke="var(--outline)" stroke-width="3.5" stroke-linejoin="round"/>
+          <path d="M390 238 L384 202 Q410 216 420 234 Z" fill="var(--innerear)"/>
+          <path class="patch patch-mikan" d="M382 252 L370 184 Q416 204 436 236 Z" fill="#f4a259" stroke="var(--outline)" stroke-width="3.5" stroke-linejoin="round"/>
+          <path class="patch patch-mikan" d="M390 238 L384 202 Q410 216 420 234 Z" fill="#f3b8c0"/>
+        </g>
+        <g class="earR">
+          <path d="M538 252 L550 184 Q504 204 484 236 Z" fill="var(--coat)" stroke="var(--outline)" stroke-width="3.5" stroke-linejoin="round"/>
+          <path d="M530 238 L536 202 Q510 216 500 234 Z" fill="var(--innerear)"/>
+        </g>
+        <!-- face -->
+        <ellipse cx="460" cy="312" rx="112" ry="90" fill="var(--coat)" stroke="var(--outline)" stroke-width="3.5"/>
+        <!-- breed patches on the head -->
+        <path class="patch patch-mikan" d="M366 268 q26 -40 88 -44 q-6 34 -22 52 q-34 6 -66 -8 Z" fill="#f4a259"/>
+        <path class="patch patch-kuro" d="M460 402 q-64 0 -84 -44 q34 -22 84 -22 q50 0 84 22 q-20 44 -84 44 Z" fill="#fff"/>
+        <g class="patch patch-latte" stroke="#d9b98c" stroke-width="6" stroke-linecap="round" fill="none">
+          <path d="M436 232 v22"/><path d="M460 228 v26"/><path d="M484 232 v22"/>
+        </g>
+        <!-- blush -->
+        <ellipse cx="386" cy="336" rx="13" ry="7" fill="#f3b8c0" opacity=".55"/>
+        <ellipse cx="534" cy="336" rx="13" ry="7" fill="#f3b8c0" opacity=".55"/>
+        <!-- little worried-annoyed brows (appear when it catches you) -->
+        <g class="browsS" stroke="var(--face)" stroke-width="3.6" stroke-linecap="round" fill="none">
+          <path d="M400 293 L426 301"/>
+          <path d="M494 301 L520 293"/>
+        </g>
+        <!-- eyes: closed happy arcs while reading, with winged lashes -->
+        <g class="eyesClosed" stroke="var(--face)" stroke-width="4" stroke-linecap="round" fill="none">
+          <path d="M406 318 q9 8 18 0"/>
+          <path d="M496 318 q9 8 18 0"/>
+          <g stroke-width="3">
+            <path d="M406 317 l-3 -7"/><path d="M412 315 l-1 -8"/>
+            <path d="M514 317 l3 -7"/><path d="M508 315 l1 -8"/>
+          </g>
+        </g>
+        <!-- eyes: tiny ovals when it looks up, winged cat-eye lashes -->
+        <g class="eyesOpen">
+          <g fill="var(--face)">
+            <ellipse cx="415" cy="316" rx="4.6" ry="7"/>
+            <ellipse cx="505" cy="316" rx="4.6" ry="7"/>
+          </g>
+          <g stroke="var(--face)" stroke-width="2.8" stroke-linecap="round" fill="none">
+            <path d="M412 310 l-3 -7"/><path d="M416 309 l-1 -8"/>
+            <path d="M508 310 l3 -7"/><path d="M504 309 l1 -8"/>
+          </g>
+        </g>
+        <!-- tiny glasses (optional): just the round front frames -->
+        <g class="glasses" stroke="var(--face)" stroke-width="2.6" fill="none" opacity=".9">
+          <circle cx="415" cy="317" r="22"/><circle cx="505" cy="317" r="22"/>
+          <path d="M437 316 h46"/>
+        </g>
+        <!-- tiny ω mouth -->
+        <path d="M448 340 q6 6 12 0 q6 6 12 0" fill="none" stroke="var(--face)" stroke-width="3.6" stroke-linecap="round"/>
+        <!-- short whiskers -->
+        <g stroke="var(--whisker)" stroke-width="2.4" stroke-linecap="round">
+          <path d="M352 322 h-26"/><path d="M354 336 q-14 2 -25 7"/>
+          <path d="M568 322 h26"/><path d="M566 336 q14 2 25 7"/>
+        </g>
+      </g>
+
+      <!-- stubby paws on the book -->
+      <g>
+        <rect x="408" y="442" width="36" height="30" rx="15" fill="var(--coat)" stroke="var(--outline)" stroke-width="3.5"/>
+        <rect x="476" y="442" width="36" height="30" rx="15" fill="var(--coat)" stroke="var(--outline)" stroke-width="3.5"/>
+        <path d="M420 458 v8 M432 458 v8 M488 458 v8 M500 458 v8" stroke="var(--outline)" stroke-width="2.4" stroke-linecap="round"/>
+        <rect class="patch patch-kuro" x="410" y="444" width="32" height="26" rx="13" fill="#fff"/>
+        <rect class="patch patch-kuro" x="478" y="444" width="32" height="26" rx="13" fill="#fff"/>
+      </g>
+    </g>
+
+    <!-- desk & props: same thin-outline flat style -->
+    <rect x="90" y="470" width="720" height="22" rx="11" fill="#e9cfa6" stroke="var(--outline)" stroke-width="3.5"/>
+    <rect x="90" y="488" width="720" height="52" rx="10" fill="#dcbd8f" stroke="var(--outline)" stroke-width="3.5"/>
+    <g stroke="var(--outline)" stroke-width="3.5" stroke-linejoin="round">
+      <path d="M196 366 L308 356 L314 464 L190 472 Z" fill="#cfd6f2"/>
+      <path d="M204 376 L300 367 L305 456 L198 463 Z" fill="#eef1ff" stroke-width="2.6"/>
+      <path d="M178 472 L330 464 L340 486 L172 492 Z" fill="#b9c2e8"/>
+    </g>
+    <g stroke="var(--outline)" stroke-width="3" stroke-linejoin="round">
+      <path d="M376 474 q92 -18 184 0 l-5 28 q-87 -15 -174 0 Z" fill="#fffdf6"/>
+      <path d="M468 458 v42" stroke-width="2.6"/>
+      <path d="M398 477 q32 -6 62 -3 M400 486 q30 -5 60 -2 M500 475 q32 -3 60 4 M502 484 q30 -2 58 5"
+        stroke="#d9ccb2" stroke-width="2.6" stroke-linecap="round"/>
+    </g>
+    <g stroke="var(--outline)" stroke-width="3.5">
+      <rect x="636" y="432" width="52" height="46" rx="10" fill="#fff"/>
+      <path d="M688 444 q22 3 20 18 q-2 15 -20 13" fill="none"/>
+      <ellipse cx="662" cy="437" rx="20" ry="6" fill="#8a5a3b" stroke-width="2.6"/>
+    </g>
+    <g class="steam" stroke="#cbbfae" stroke-width="3.6" fill="none" stroke-linecap="round">
+      <path d="M650 420 q-6 -13 2 -24 q6 -10 2 -21"/>
+      <path d="M662 418 q-6 -13 2 -24 q6 -10 2 -21"/>
+      <path d="M674 420 q-6 -13 2 -24 q6 -10 2 -21"/>
+    </g>
+  </svg>
+
+  <!-- ============ walker: tiny front-facing waddler ============ -->
+  <svg id="walker" viewBox="0 0 200 225" xmlns="http://www.w3.org/2000/svg">
+    <g class="rock">
+      <g class="wtail">
+        <path d="M166 160 q30 -12 26 -50" fill="none" stroke="var(--outline)" stroke-width="20" stroke-linecap="round"/>
+        <path d="M166 160 q30 -12 26 -50" fill="none" stroke="var(--coat)" stroke-width="15" stroke-linecap="round"/>
+      </g>
+      <!-- small body, head bigger than body -->
+      <path d="M48 208 q-6 -58 52 -60 q58 2 52 60 Z" fill="var(--coat)" stroke="var(--outline)" stroke-width="3.5"/>
+      <path class="patch patch-kuro" d="M70 208 q2 -38 30 -40 q28 2 30 40 Z" fill="#fff"/>
+      <path class="patch patch-mikan" d="M118 154 q30 8 32 54 l-30 0 q6 -28 -2 -54 Z" fill="#b7aca4"/>
+      <g class="patch patch-latte" stroke="#d9b98c" stroke-width="4.5" stroke-linecap="round" fill="none">
+        <path d="M62 178 q8 -4 15 -4"/><path d="M138 178 q-8 -4 -15 -4"/>
+      </g>
+      <!-- stub feet -->
+      <g class="pawL"><rect x="62" y="198" width="26" height="22" rx="11" fill="var(--coat)" stroke="var(--outline)" stroke-width="3"/></g>
+      <g class="pawR"><rect x="112" y="198" width="26" height="22" rx="11" fill="var(--coat)" stroke="var(--outline)" stroke-width="3"/></g>
+      <g class="headbob">
+        <g>
+          <path d="M40 74 L30 22 Q66 38 82 62 Z" fill="var(--coat)" stroke="var(--outline)" stroke-width="3.2" stroke-linejoin="round"/>
+          <path class="patch patch-mikan" d="M40 74 L30 22 Q66 38 82 62 Z" fill="#f4a259" stroke="var(--outline)" stroke-width="3.2" stroke-linejoin="round"/>
+          <path d="M46 64 L42 38 Q62 48 70 62 Z" fill="var(--innerear)"/>
+        </g>
+        <g>
+          <path d="M160 74 L170 22 Q134 38 118 62 Z" fill="var(--coat)" stroke="var(--outline)" stroke-width="3.2" stroke-linejoin="round"/>
+          <path d="M154 64 L158 38 Q138 48 130 62 Z" fill="var(--innerear)"/>
+        </g>
+        <ellipse cx="100" cy="106" rx="80" ry="64" fill="var(--coat)" stroke="var(--outline)" stroke-width="3.5"/>
+        <path class="patch patch-mikan" d="M34 76 q20 -30 64 -32 q-4 24 -16 38 q-26 4 -48 -6 Z" fill="#f4a259"/>
+        <path class="patch patch-kuro" d="M100 170 q-46 0 -60 -32 q24 -16 60 -16 q36 0 60 16 q-14 32 -60 32 Z" fill="#fff"/>
+        <g class="patch patch-latte" stroke="#d9b98c" stroke-width="4.5" stroke-linecap="round" fill="none">
+          <path d="M84 50 v16"/><path d="M100 47 v19"/><path d="M116 50 v16"/>
+        </g>
+        <ellipse cx="70" cy="112" rx="9" ry="5" fill="#f3b8c0" opacity=".55"/>
+        <ellipse cx="130" cy="112" rx="9" ry="5" fill="#f3b8c0" opacity=".55"/>
+        <!-- tiny eyes with lashes + cute annoyed brows (it's on a mission) -->
+        <g fill="var(--face)">
+          <ellipse cx="78" cy="102" rx="4" ry="6"/>
+          <ellipse cx="122" cy="102" rx="4" ry="6"/>
+        </g>
+        <g stroke="var(--face)" stroke-width="2.6" stroke-linecap="round" fill="none">
+          <path d="M64 90 L84 95"/><path d="M116 95 L136 90"/>
+          <path d="M76 96 l-2 -6"/><path d="M79 95 l-1 -7"/>
+          <path d="M124 96 l2 -6"/><path d="M121 95 l1 -7"/>
+        </g>
+        <g class="glasses" stroke="var(--face)" stroke-width="2.2" fill="none" opacity=".9">
+          <circle cx="78" cy="103" r="16"/><circle cx="122" cy="103" r="16"/><path d="M94 102 h12"/>
+        </g>
+        <!-- ω mouth / small meow mouth -->
+        <path class="mouthClosed" d="M90 122 q5 5 10 0 q5 5 10 0" fill="none" stroke="var(--face)" stroke-width="3" stroke-linecap="round"/>
+        <g class="mouthOpen">
+          <ellipse cx="100" cy="126" rx="8" ry="9" fill="#8e5560" stroke="var(--outline)" stroke-width="2.6"/>
+        </g>
+        <g stroke="var(--whisker)" stroke-width="2" stroke-linecap="round">
+          <path d="M26 104 h-16"/><path d="M28 114 q-9 2 -16 5"/>
+          <path d="M174 104 h16"/><path d="M172 114 q9 2 16 5"/>
+        </g>
+      </g>
+    </g>
+  </svg>
+  <div id="speech"></div>
+</div>
+<div class="hint">tiny eyes. tiny body. maximum judgment. toggle the glasses if your cat is feeling scholarly.</div>
+
+<script>
+/* ---------- cats: full solid coats, same face everywhere ---------- */
+const CATS={
+  mikan:{coat:'#f4a259',face:'#4a4045',innerear:'#f8c3b4',whisker:'#4a404573',pitch:1.1},   /* orange */
+  kuro:{coat:'#3d3741',face:'#f6f2ec',innerear:'#bb8f9c',whisker:'#f6f2ecd9',pitch:.78},    /* black  */
+  latte:{coat:'#ffffff',face:'#4a4045',innerear:'#f3b8c0',whisker:'#4a404573',pitch:1},     /* white  */
+};
+let cat='mikan';
+const stage=document.getElementById('stage');
+function applyCat(){
+  const c=CATS[cat],r=document.documentElement.style;
+  r.setProperty('--coat',c.coat);r.setProperty('--face',c.face);
+  r.setProperty('--innerear',c.innerear);r.setProperty('--whisker',c.whisker);
+}
+
+/* ---------- tiny synth voice ---------- */
+let actx=null;const A=()=>actx??=new (window.AudioContext||window.webkitAudioContext)();
+function meow(i=1){
+  const ctx=A(),t=ctx.currentTime,p=CATS[cat].pitch;
+  const o=ctx.createOscillator();o.type='sawtooth';
+  const f=ctx.createBiquadFilter();f.type='bandpass';f.frequency.value=1000;f.Q.value=3.4;
+  const g=ctx.createGain();const b=(430+i*70)*p;
+  o.frequency.setValueAtTime(b*.8,t);
+  o.frequency.linearRampToValueAtTime(b*1.45,t+.12);
+  o.frequency.linearRampToValueAtTime(b*.7,t+.48);
+  g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.26*i,t+.05);
+  g.gain.linearRampToValueAtTime(0,t+.54);
+  o.connect(f).connect(g).connect(ctx.destination);o.start(t);o.stop(t+.58);
+}
+function mrrp(){
+  const ctx=A(),t=ctx.currentTime,p=CATS[cat].pitch;
+  const o=ctx.createOscillator(),g=ctx.createGain();o.type='triangle';
+  o.frequency.setValueAtTime(300*p,t);o.frequency.linearRampToValueAtTime(560*p,t+.25);
+  g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.2,t+.05);g.gain.linearRampToValueAtTime(0,t+.29);
+  o.connect(g).connect(ctx.destination);o.start(t);o.stop(t+.31);
+}
+
+/* ---------- state ---------- */
+const walker=document.getElementById('walker');
+const speech=document.getElementById('speech');
+const S={detected:'FOCUSED',since:null,mode:'study',t:0,target:0,lastMeow:0,back:false};
+const LINES={sus:['mrrp?','...?'],mid:['meow.','the book.'],big:['MEOW!!','phone. down.','I walked ALL this way']};
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+function say(txt,x,y,ms=1500){
+  speech.textContent=txt;speech.style.left=x+'px';speech.style.top=y+'px';
+  speech.classList.add('show');clearTimeout(say.tm);
+  say.tm=setTimeout(()=>speech.classList.remove('show'),ms);
+}
+
+/* reading -> peek at laptop every 10-15s -> back to book */
+(function gaze(){
+  setTimeout(()=>{
+    if(S.mode==='study'){
+      stage.classList.add('look-laptop');
+      setTimeout(()=>{stage.classList.remove('look-laptop');gaze();},2600+Math.random()*1500);
+    } else gaze();
+  },10000+Math.random()*5000);
+})();
+
+/* feet-anchored approach: grows toward the viewer, stays in frame */
+function pathPos(t){
+  const R=stage.getBoundingClientRect();
+  const s=.95+(3.2-.95)*t*t;
+  const footX=R.width*.51+(R.width*.5-R.width*.51)*t;
+  const footY=R.height*.81+(R.height*.97-R.height*.81)*Math.pow(t,1.2);
+  const w=200*s,h=225*s;
+  return {x:footX-w/2,y:Math.max(4,footY-h),s};
+}
+let prev=performance.now();
+function tick(now){
+  const dt=now-prev;prev=now;
+  const distracted=S.detected!=='FOCUSED';
+  if(distracted){
+    S.since??=now;const d=now-S.since;
+    if(S.mode==='study'&&d>900){S.mode='sus';stage.classList.add('stare');mrrp();
+      say(pick(LINES.sus),stage.clientWidth*.51,stage.clientHeight*.3);}
+    if(S.mode==='sus'&&d>4200){S.mode='walk';S.back=false;S.target=1;
+      stage.classList.remove('stare');
+      document.querySelector('#scene .breathe').style.opacity=0;
+      document.querySelectorAll('#scene .tail').forEach(t=>t.style.opacity=0);
+      walker.style.opacity=1;}
+    if(S.mode==='walk'&&!S.back&&now-S.lastMeow>(S.t>.75?1500:2300)){
+      S.lastMeow=now;
+      walker.classList.remove('meow');void walker.offsetWidth;walker.classList.add('meow');
+      meow(Math.min(1.4,.8+S.t*.7));
+      const p=pathPos(S.t);
+      say(pick(S.t>.75?LINES.big:LINES.mid),p.x+100*p.s,Math.max(26,p.y-6));
+      setTimeout(()=>walker.classList.remove('meow'),320);
+    }
+  } else if(S.since!==null){
+    S.since=null;
+    if(S.mode==='sus'){S.mode='study';stage.classList.remove('stare');}
+    else if(S.mode==='walk'){S.back=true;S.target=0;
+      say('hmph.',stage.clientWidth*.5,stage.clientHeight*.3,1400);}
+  }
+  const dir=Math.sign(S.target-S.t);
+  if(dir!==0){
+    S.t+=dir*(S.back?.24:(S.t>.6?.3:.16))*(dt/1000);
+    if(Math.sign(S.target-S.t)!==dir)S.t=S.target;
+  }
+  if(S.back&&S.t<=0){
+    S.back=false;S.mode='study';
+    walker.style.opacity=0;
+    document.querySelector('#scene .breathe').style.opacity=1;
+    document.querySelectorAll('#scene .tail').forEach(t=>t.style.opacity=1);
+  }
+  if(S.mode==='walk'||S.t>0){
+    const p=pathPos(S.t);
+    walker.style.transform=`translate(${p.x}px,${p.y}px) scale(${p.s})`;
+  }
+  requestAnimationFrame(tick);
+}
+
+document.querySelectorAll('.chip').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('.chip').forEach(x=>x.setAttribute('aria-pressed','false'));
+  b.setAttribute('aria-pressed','true');S.detected=b.dataset.s;A();
+}));
+document.querySelectorAll('.swb').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('.swb').forEach(x=>x.setAttribute('aria-pressed','false'));
+  b.setAttribute('aria-pressed','true');cat=b.dataset.cat;applyCat();mrrp();
+}));
+document.getElementById('glassBox').addEventListener('change',e=>{
+  stage.classList.toggle('glassesOff',!e.target.checked);
+});
+applyCat();
+requestAnimationFrame(tick);
+</script>
+</body>
+</html>
