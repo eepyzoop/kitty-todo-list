@@ -1,11 +1,17 @@
 import { createClient } from "@/lib/supabase/server";
 import { signOut } from "./login/actions";
+import TaskApp from "@/components/TaskApp";
 
 export default async function Home() {
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
+
+  const { data: tasks } = await supabase
+    .from("tasks")
+    .select("*")
+    .order("created_at", { ascending: true });
 
   return (
     <main className="flex flex-1 flex-col items-center p-6 gap-6">
@@ -19,11 +25,7 @@ export default async function Home() {
           </button>
         </form>
       </header>
-      <section className="w-full max-w-2xl bg-card border border-line rounded-3xl p-8">
-        <p className="text-foreground/70">
-          Tasks are coming in the next step. You&apos;re signed in.
-        </p>
-      </section>
+      <TaskApp userId={user!.id} initialTasks={tasks ?? []} />
     </main>
   );
 }

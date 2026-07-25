@@ -31,17 +31,38 @@ create trigger on_auth_user_created
   after insert on auth.users
   for each row execute function public.handle_new_user();
 
+-- Base table privileges. RLS policies below only restrict access on top of
+-- these — without the GRANTs, authenticated/anon have zero access regardless
+-- of policies.
+grant usage on schema public to anon, authenticated;
+grant select, insert, update, delete on public.tasks to authenticated;
+grant select, update on public.profiles to authenticated;
+
 -- RLS: users only see/modify their own rows.
 alter table profiles enable row level security;
 alter table tasks enable row level security;
 
+drop policy if exists "profiles: select own" on profiles;
 create policy "profiles: select own" on profiles for select using (auth.uid() = id);
+drop policy if exists "profiles: update own" on profiles;
 create policy "profiles: update own" on profiles for update using (auth.uid() = id);
 
+drop policy if exists "tasks: select own" on tasks;
 create policy "tasks: select own" on tasks for select using (auth.uid() = user_id);
+drop policy if exists "tasks: insert own" on tasks;
 create policy "tasks: insert own" on tasks for insert with check (auth.uid() = user_id);
+drop policy if exists "tasks: update own" on tasks;
 create policy "tasks: update own" on tasks for update using (auth.uid() = user_id);
+drop policy if exists "tasks: delete own" on tasks;
 create policy "tasks: delete own" on tasks for delete using (auth.uid() = user_id);
 
 -- Realtime for tasks.
-alter publication supabase_realtime add table tasks;
+do $$
+begin
+  if not exists (
+    select 1 from pg_publication_tables
+    where pubname = 'supabase_realtime' and schemaname = 'public' and tablename = 'tasks'
+  ) then
+    alter publication supabase_realtime add table tasks;
+  end if;
+end $$;
