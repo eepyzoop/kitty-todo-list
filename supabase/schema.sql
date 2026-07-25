@@ -42,6 +42,7 @@ grant select, update on public.profiles to authenticated;
 alter table profiles enable row level security;
 alter table tasks enable row level security;
 
+
 drop policy if exists "profiles: select own" on profiles;
 create policy "profiles: select own" on profiles for select using (auth.uid() = id);
 drop policy if exists "profiles: update own" on profiles;
@@ -56,7 +57,12 @@ create policy "tasks: update own" on tasks for update using (auth.uid() = user_i
 drop policy if exists "tasks: delete own" on tasks;
 create policy "tasks: delete own" on tasks for delete using (auth.uid() = user_id);
 
--- Realtime for tasks.
+-- Realtime for tasks. FULL replica identity is required so DELETE/UPDATE
+-- events carry the full old row (including user_id) — otherwise Realtime's
+-- RLS check and user_id filter can't match deleted rows and silently drop
+-- the event.
+alter table tasks replica identity full;
+
 do $$
 begin
   if not exists (

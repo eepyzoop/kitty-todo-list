@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import type { Task } from "@/lib/types";
 
@@ -11,12 +11,47 @@ export default function TaskApp({
   userId: string;
   initialTasks: Task[];
 }) {
-  const supabase = createClient();
+  const supabase = useMemo(() => createClient(), []);
   const [tasks, setTasks] = useState<Task[]>(initialTasks);
   const [newTitle, setNewTitle] = useState("");
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingValue, setEditingValue] = useState("");
   const [completedOpen, setCompletedOpen] = useState(true);
+
+  useEffect(() => {
+    const channel = supabase
+      .channel(`tasks-${userId}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "tasks",
+          filter: `user_id=eq.${userId}`,
+        },
+        (payload) => {
+          if (payload.eventType === "INSERT") {
+            const row = payload.new as Task;
+            setTasks((prev) =>
+              prev.some((t) => t.id === row.id) ? prev : [...prev, row],
+            );
+          } else if (payload.eventType === "UPDATE") {
+            const row = payload.new as Task;
+            setTasks((prev) =>
+              prev.map((t) => (t.id === row.id ? row : t)),
+            );
+          } else if (payload.eventType === "DELETE") {
+            const oldId = (payload.old as { id: string }).id;
+            setTasks((prev) => prev.filter((t) => t.id !== oldId));
+          }
+        },
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [supabase, userId]);
 
   const active = tasks.filter((t) => !t.done);
   const completed = tasks.filter((t) => t.done);
