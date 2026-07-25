@@ -39,3 +39,38 @@ body {
 .animate-check-pop {
   animation: check-pop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
+
+@keyframes cat-breathe {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(2.5px);
+  }
+}
+
+.cat-breathe {
+  animation: cat-breathe 3.8s ease-in-out infinite;
+}
+
+@keyframes cat-tail {
+  0%,
+  100% {
+    transform: rotate(-4deg);
+  }
+  50% {
+    transform: rotate(6deg);
+  }
+}
+
+.cat-tail {
+  animation: cat-tail 4.2s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cat-breathe,
+  .cat-tail {
+    animation: none;
+  }
+}

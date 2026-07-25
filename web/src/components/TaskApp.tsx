@@ -2,15 +2,18 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
-import type { Task } from "@/lib/types";
+import type { CatChoice, Task } from "@/lib/types";
 import ProgressPanel from "./ProgressPanel";
+import CatSection from "./CatSection";
 
 export default function TaskApp({
   userId,
   initialTasks,
+  initialCatChoice,
 }: {
   userId: string;
   initialTasks: Task[];
+  initialCatChoice: CatChoice;
 }) {
   const supabase = useMemo(() => createClient(), []);
   const [tasks, setTasks] = useState<Task[]>(initialTasks);
@@ -122,8 +125,9 @@ export default function TaskApp({
 
   return (
     <div className="w-full max-w-3xl flex flex-col md:flex-row gap-6 items-start">
-      <aside className="w-full md:w-auto shrink-0 bg-card border border-line rounded-3xl p-6 flex justify-center">
+      <aside className="w-full md:w-auto shrink-0 bg-card border border-line rounded-3xl p-6 flex flex-col items-center">
         <ProgressPanel tasks={tasks} />
+        <CatSection userId={userId} initialCatChoice={initialCatChoice} tasks={tasks} />
       </aside>
       <section className="flex-1 w-full bg-card border border-line rounded-3xl p-8 flex flex-col gap-4">
       <form

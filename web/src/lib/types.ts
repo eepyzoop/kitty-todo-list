@@ -6,3 +6,5 @@ export type Task = {
   done_at: string | null;
   created_at: string;
 };
+
+export type CatChoice = "mikan" | "kuro" | "latte";

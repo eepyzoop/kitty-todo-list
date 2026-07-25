@@ -13,6 +13,12 @@ export default async function Home() {
     .select("*")
     .order("created_at", { ascending: true });
 
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("cat_choice")
+    .eq("id", user!.id)
+    .single();
+
   return (
     <main className="flex flex-1 flex-col items-center p-6 gap-6">
       <header className="w-full max-w-3xl flex items-center justify-between">
@@ -25,7 +31,11 @@ export default async function Home() {
           </button>
         </form>
       </header>
-      <TaskApp userId={user!.id} initialTasks={tasks ?? []} />
+      <TaskApp
+        userId={user!.id}
+        initialTasks={tasks ?? []}
+        initialCatChoice={profile?.cat_choice ?? "mikan"}
+      />
     </main>
   );
 }
