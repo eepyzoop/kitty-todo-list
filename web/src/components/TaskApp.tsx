@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import type { Task } from "@/lib/types";
+import ProgressPanel from "./ProgressPanel";
 
 export default function TaskApp({
   userId,
@@ -120,7 +121,11 @@ export default function TaskApp({
   }
 
   return (
-    <section className="w-full max-w-2xl bg-card border border-line rounded-3xl p-8 flex flex-col gap-4">
+    <div className="w-full max-w-3xl flex flex-col md:flex-row gap-6 items-start">
+      <aside className="w-full md:w-auto shrink-0 bg-card border border-line rounded-3xl p-6 flex justify-center">
+        <ProgressPanel tasks={tasks} />
+      </aside>
+      <section className="flex-1 w-full bg-card border border-line rounded-3xl p-8 flex flex-col gap-4">
       <form
         onSubmit={(e) => {
           e.preventDefault();
@@ -195,7 +200,8 @@ export default function TaskApp({
           )}
         </div>
       )}
-    </section>
+      </section>
+    </div>
   );
 }
 

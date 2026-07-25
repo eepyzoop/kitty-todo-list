@@ -15,7 +15,7 @@ export default async function Home() {
 
   return (
     <main className="flex flex-1 flex-col items-center p-6 gap-6">
-      <header className="w-full max-w-2xl flex items-center justify-between">
+      <header className="w-full max-w-3xl flex items-center justify-between">
         <h1 className="text-2xl font-medium">
           Task<span className="text-accent">Kitty</span>
         </h1>
