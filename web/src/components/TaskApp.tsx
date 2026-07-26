@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/client";
 import type { CatChoice, Task } from "@/lib/types";
 import ProgressPanel from "./ProgressPanel";
 import CatSection from "./CatSection";
+import WeeklyStats from "./WeeklyStats";
 
 export default function TaskApp({
   userId,
@@ -124,7 +125,7 @@ export default function TaskApp({
   }
 
   return (
-    <div className="w-full max-w-3xl flex flex-col md:flex-row gap-6 items-start">
+    <div className="w-full max-w-6xl flex flex-col md:flex-row gap-6 items-start">
       <aside className="w-full md:w-auto shrink-0 bg-card border border-line rounded-3xl p-6 flex flex-col items-center">
         <ProgressPanel tasks={tasks} />
         <CatSection userId={userId} initialCatChoice={initialCatChoice} tasks={tasks} />
@@ -205,6 +206,9 @@ export default function TaskApp({
         </div>
       )}
       </section>
+      <aside className="w-full md:w-72 shrink-0 bg-card border border-line rounded-3xl p-6">
+        <WeeklyStats tasks={tasks} />
+      </aside>
     </div>
   );
 }
