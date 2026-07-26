@@ -94,27 +94,4 @@ npm run tauri dev
 Opens a window titled "TaskKitty" loading the deployed web URL above — no
 local frontend build, no custom Rust (see `src-tauri/src/main.rs`).
 
-## Out of scope (by design)
-
-Webcam/CV, content scripts, group features, tags/priorities/due-date
-reminders, drag-and-drop reordering, 2FA/emails/reCAPTCHA, offline sync,
-dark mode.
-
-## Testing checklist
-
-- [x] Incognito: Vercel URL, signup → login → add/edit/check/delete tasks.
-- [x] Two windows side by side: checking a task in one updates the other
-      instantly; same between the extension popup and the web app.
-- [x] Canvas: ring animates to the correct %, confetti fires on check-off,
-      full-screen celebration at 100%; devicePixelRatio-aware, redraws on
-      resize; no libraries used for it.
-- [x] Cat: all 3 coats correct (whiskers visible on Kuro/black), moods
-      switch at the right thresholds (0% sleepy, 1–69% reading, 70–99%
-      happy, 100% celebration, >8 open tasks → worried, regardless of %).
-- [x] Mobile (Expo web smoke-tested; verify once more on a real device via
-      Expo Go): adds a task that appears on web in realtime.
-- [ ] Tauri: opens a window titled "TaskKitty" loading the live app
-      (unverified in the build environment — no Rust toolchain installed
-      there; verify on a machine with Rust set up).
-- [x] Repo is public, no secrets committed, all links tested incognito.
 
