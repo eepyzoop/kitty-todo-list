@@ -4,7 +4,7 @@ A cute todo app built as one idea across four surfaces — web, a Chrome
 extension, Android (Expo), and desktop (Tauri) — all sharing one Supabase
 backend. Add and check off tasks; a kawaii cat mascot reacts to your
 progress; a Canvas-drawn ring + confetti celebrate completion. Tasks sync in
-realtime everywhere.
+realtime everywhere. Built as part of MERN internship @DaFi Labs, week 2 task.
 
 ## Live
 
