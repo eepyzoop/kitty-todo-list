@@ -9,7 +9,6 @@ realtime everywhere.
 ## Live
 
 - **Web app:** https://web-delta-one-68.vercel.app
-- **Repo:** https://github.com/eepyzoop/kitty-todo-list
 
 ## Task → feature map
 
@@ -22,17 +21,6 @@ realtime everywhere.
 | 5 | Chrome extension popup | `extension/` |
 | 6 | Mobile (Expo) + Desktop (Tauri) | `mobile/`, `desktop/` |
 | 7 | Public repo & deployment | this repo + the Vercel URL above |
-
-## Architecture notes (Task 1 talking points)
-
-Supabase Realtime rides Phoenix channels over a persistent WebSocket between
-the browser/extension/app and Supabase directly — it does **not** go through
-Vercel's serverless functions, which can't hold a long-lived connection open.
-That's exactly why this architecture fits Vercel: the Next.js app is only
-responsible for initial page render + auth; once the client has a Supabase
-session, it opens its own WebSocket straight to Supabase and stays connected
-for as long as the tab/popup/app is open, independent of any serverless
-function lifecycle.
 
 ## Setup
 
