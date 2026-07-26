@@ -3,8 +3,11 @@
 create table if not exists profiles (
   id uuid primary key references auth.users(id) on delete cascade,
   cat_choice text not null default 'mikan' check (cat_choice in ('mikan','kuro','latte')),
+  display_name text,
   created_at timestamptz not null default now()
 );
+
+alter table profiles add column if not exists display_name text;
 
 create table if not exists tasks (
   id uuid primary key default gen_random_uuid(),

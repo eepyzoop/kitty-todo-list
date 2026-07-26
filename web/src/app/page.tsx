@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { signOut } from "./login/actions";
 import TaskApp from "@/components/TaskApp";
+import UserGreeting from "@/components/UserGreeting";
 
 export default async function Home() {
   const supabase = await createClient();
@@ -15,7 +16,7 @@ export default async function Home() {
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("cat_choice")
+    .select("cat_choice, display_name")
     .eq("id", user!.id)
     .single();
 
@@ -25,11 +26,17 @@ export default async function Home() {
         <h1 className="text-2xl font-medium">
           Task<span className="text-accent">Kitty</span>
         </h1>
-        <form action={signOut}>
-          <button className="text-sm text-foreground/70 hover:text-accent transition">
-            {user?.email} · Log out
-          </button>
-        </form>
+        <div className="flex items-center gap-2 text-sm text-foreground/70">
+          <UserGreeting
+            userId={user!.id}
+            email={user!.email!}
+            initialDisplayName={profile?.display_name ?? null}
+          />
+          <span>·</span>
+          <form action={signOut}>
+            <button className="hover:text-accent transition">Log out</button>
+          </form>
+        </div>
       </header>
       <TaskApp
         userId={user!.id}

@@ -88,10 +88,40 @@ body {
   animation: paw-wave 0.7s ease-in-out;
 }
 
+@keyframes modal-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.animate-modal-fade {
+  animation: modal-fade 0.2s ease-out;
+}
+
+@keyframes modal-pop {
+  0% {
+    transform: scale(0.85) translateY(10px);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+  }
+}
+
+.animate-modal-pop {
+  animation: modal-pop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
 @media (prefers-reduced-motion: reduce) {
   .cat-breathe,
   .cat-tail,
-  .cat-paw-wave {
+  .cat-paw-wave,
+  .animate-modal-fade,
+  .animate-modal-pop {
     animation: none;
   }
 }
