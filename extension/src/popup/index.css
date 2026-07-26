@@ -1,8 +1,8 @@
 body {
   margin: 0;
   font-family: system-ui, sans-serif;
-  background: #faf7f2;
-  color: #5a5254;
+  background: #f6f2fb;
+  color: #59516b;
 }
 
 button,
@@ -38,9 +38,30 @@ input {
   animation: cat-tail 4.2s ease-in-out infinite;
 }
 
+@keyframes paw-wave {
+  0%,
+  100% {
+    transform: rotate(0deg) translateY(0);
+  }
+  25% {
+    transform: rotate(-18deg) translateY(-6px);
+  }
+  50% {
+    transform: rotate(10deg) translateY(-4px);
+  }
+  75% {
+    transform: rotate(-8deg) translateY(-2px);
+  }
+}
+
+.cat-paw-wave {
+  animation: paw-wave 0.7s ease-in-out;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .cat-breathe,
-  .cat-tail {
+  .cat-tail,
+  .cat-paw-wave {
     animation: none;
   }
 }

@@ -19,7 +19,7 @@ export default function LoginScreen() {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>
-        Task<Text style={{ color: "#f4a259" }}>Kitty</Text>
+        Task<Text style={{ color: "#8b7cc4" }}>Kitty</Text>
       </Text>
       {error && <Text style={styles.error}>{error}</Text>}
       <TextInput
@@ -46,18 +46,18 @@ export default function LoginScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#faf7f2", justifyContent: "center", padding: 24, gap: 12 },
-  title: { fontSize: 26, fontWeight: "600", textAlign: "center", marginBottom: 12, color: "#5a5254" },
+  container: { flex: 1, backgroundColor: "#f6f2fb", justifyContent: "center", padding: 24, gap: 12 },
+  title: { fontSize: 26, fontWeight: "600", textAlign: "center", marginBottom: 12, color: "#59516b" },
   error: { color: "#e05a5a", textAlign: "center" },
   input: {
     backgroundColor: "#fff",
     borderWidth: 1.5,
-    borderColor: "#eee7de",
+    borderColor: "#e6def5",
     borderRadius: 999,
     paddingHorizontal: 16,
     paddingVertical: 10,
   },
-  button: { backgroundColor: "#f4a259", borderRadius: 999, paddingVertical: 12, alignItems: "center" },
+  button: { backgroundColor: "#8b7cc4", borderRadius: 999, paddingVertical: 12, alignItems: "center" },
   buttonText: { color: "#fff", fontWeight: "600" },
-  hint: { textAlign: "center", color: "#a89fa2", fontSize: 12, marginTop: 8 },
+  hint: { textAlign: "center", color: "#9c8fb0", fontSize: 12, marginTop: 8 },
 });

@@ -84,7 +84,7 @@ export default function TasksScreen({ user }: { user: User }) {
     <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.title}>
-          Task<Text style={{ color: "#f4a259" }}>Kitty</Text>
+          Task<Text style={{ color: "#8b7cc4" }}>Kitty</Text>
         </Text>
         <Pressable onPress={() => supabase.auth.signOut()}>
           <Text style={styles.logout}>Log out</Text>
@@ -130,28 +130,28 @@ export default function TasksScreen({ user }: { user: User }) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#faf7f2", paddingTop: 60, paddingHorizontal: 20 },
+  container: { flex: 1, backgroundColor: "#f6f2fb", paddingTop: 60, paddingHorizontal: 20 },
   header: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
-  title: { fontSize: 22, fontWeight: "600", color: "#5a5254" },
-  logout: { color: "#a89fa2", fontSize: 13 },
+  title: { fontSize: 22, fontWeight: "600", color: "#59516b" },
+  logout: { color: "#9c8fb0", fontSize: 13 },
   progressRow: { flexDirection: "row", alignItems: "center", gap: 10, marginTop: 20 },
-  progressTrack: { flex: 1, height: 10, borderRadius: 999, backgroundColor: "#eee7de", overflow: "hidden" },
-  progressFill: { height: "100%", backgroundColor: "#f4a259", borderRadius: 999 },
-  progressLabel: { fontSize: 13, color: "#5a5254", width: 36 },
+  progressTrack: { flex: 1, height: 10, borderRadius: 999, backgroundColor: "#e6def5", overflow: "hidden" },
+  progressFill: { height: "100%", backgroundColor: "#8b7cc4", borderRadius: 999 },
+  progressLabel: { fontSize: 13, color: "#59516b", width: 36 },
   catEmoji: { fontSize: 22 },
   addRow: { flexDirection: "row", gap: 8, marginTop: 20 },
   input: {
     flex: 1,
     backgroundColor: "#fff",
     borderWidth: 1.5,
-    borderColor: "#eee7de",
+    borderColor: "#e6def5",
     borderRadius: 999,
     paddingHorizontal: 16,
     paddingVertical: 8,
   },
-  addButton: { backgroundColor: "#f4a259", borderRadius: 999, paddingHorizontal: 18, justifyContent: "center" },
+  addButton: { backgroundColor: "#8b7cc4", borderRadius: 999, paddingHorizontal: 18, justifyContent: "center" },
   addButtonText: { color: "#fff", fontWeight: "600" },
-  empty: { textAlign: "center", color: "#a89fa2", marginTop: 20 },
+  empty: { textAlign: "center", color: "#9c8fb0", marginTop: 20 },
   taskRow: {
     flexDirection: "row",
     alignItems: "center",
@@ -159,12 +159,12 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     borderRadius: 16,
     borderWidth: 1.5,
-    borderColor: "#eee7de",
+    borderColor: "#e6def5",
     paddingHorizontal: 14,
     paddingVertical: 10,
   },
-  checkbox: { width: 20, height: 20, borderRadius: 10, borderWidth: 2, borderColor: "#eee7de" },
-  checkboxDone: { backgroundColor: "#f4a259", borderColor: "#f4a259" },
-  taskTitle: { fontSize: 14, color: "#5a5254" },
-  taskTitleDone: { textDecorationLine: "line-through", color: "#a89fa2" },
+  checkbox: { width: 20, height: 20, borderRadius: 10, borderWidth: 2, borderColor: "#e6def5" },
+  checkboxDone: { backgroundColor: "#8b7cc4", borderColor: "#8b7cc4" },
+  taskTitle: { fontSize: 14, color: "#59516b" },
+  taskTitleDone: { textDecorationLine: "line-through", color: "#9c8fb0" },
 });

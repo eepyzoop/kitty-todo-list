@@ -44,11 +44,11 @@ export default function ProgressRing({ percent }: { percent: number }) {
       const r = SIZE / 2 - 6;
       ctx.lineWidth = 6;
       ctx.lineCap = "round";
-      ctx.strokeStyle = "#eee7de";
+      ctx.strokeStyle = "#e6def5";
       ctx.beginPath();
       ctx.arc(cx, cy, r, 0, Math.PI * 2);
       ctx.stroke();
-      ctx.strokeStyle = "#f4a259";
+      ctx.strokeStyle = "#8b7cc4";
       ctx.beginPath();
       const start = -Math.PI / 2;
       const end = start + (displayed / 100) * Math.PI * 2;

@@ -69,11 +69,11 @@ export default function ProgressPanel({ tasks }: { tasks: Task[] }) {
       const r = SIZE / 2 - 8;
       ctx.lineWidth = 8;
       ctx.lineCap = "round";
-      ctx.strokeStyle = "#eee7de";
+      ctx.strokeStyle = "#e6def5";
       ctx.beginPath();
       ctx.arc(cx, cy, r, 0, Math.PI * 2);
       ctx.stroke();
-      ctx.strokeStyle = "#f4a259";
+      ctx.strokeStyle = "#8b7cc4";
       ctx.beginPath();
       const start = -Math.PI / 2;
       const end = start + (displayed / 100) * Math.PI * 2;

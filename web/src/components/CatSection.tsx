@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import type { CatChoice, Task } from "@/lib/types";
 import CatMascot, { type CatMood } from "./CatMascot";
@@ -39,6 +39,15 @@ export default function CatSection({
             ? "reading"
             : "happy";
 
+  const prevDoneRef = useRef(done);
+  const [reactionId, setReactionId] = useState(0);
+  useEffect(() => {
+    if (done > prevDoneRef.current) {
+      setReactionId((id) => id + 1);
+    }
+    prevDoneRef.current = done;
+  }, [done]);
+
   async function pickCat(choice: CatChoice) {
     setCatChoice(choice);
     const { error } = await supabase
@@ -50,7 +59,7 @@ export default function CatSection({
 
   return (
     <div className="flex flex-col items-center gap-3 pt-2">
-      <CatMascot coat={catChoice} mood={mood} />
+      <CatMascot coat={catChoice} mood={mood} reactionId={reactionId} />
       <div className="flex gap-2">
         {CAT_OPTIONS.map((opt) => (
           <button

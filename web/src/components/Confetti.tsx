@@ -18,7 +18,7 @@ type Particle = {
   decay: number;
 };
 
-const COLORS = ["#f4a259", "#f3b8c0", "#ffd97d", "#a8d5ba", "#8ec5e8"];
+const COLORS = ["#8b7cc4", "#f3b8c0", "#ffd97d", "#a8d5ba", "#8ec5e8"];
 const randomColor = () => COLORS[Math.floor(Math.random() * COLORS.length)];
 
 export default function Confetti({

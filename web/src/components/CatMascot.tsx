@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import type { CatChoice } from "@/lib/types";
 
 export type CatMood = "sleepy" | "reading" | "happy" | "celebration" | "worried";
@@ -21,15 +22,30 @@ const BUBBLE: Record<CatMood, string | null> = {
 export default function CatMascot({
   coat: coatChoice,
   mood,
+  reactionId = 0,
 }: {
   coat: CatChoice;
   mood: CatMood;
+  /** Bump this on every check-off to trigger a brief smile + paw wave. */
+  reactionId?: number;
 }) {
   const { coat, face, innerear, whisker } = COATS[coatChoice];
   const eyesOpen = mood === "happy" || mood === "celebration" || mood === "worried";
-  const mouthOpen = mood === "celebration";
   const browsVisible = mood === "worried";
   const bubble = BUBBLE[mood];
+
+  const [waving, setWaving] = useState(false);
+  useEffect(() => {
+    if (reactionId <= 0) return;
+    const onTimer = setTimeout(() => setWaving(true), 0);
+    const offTimer = setTimeout(() => setWaving(false), 700);
+    return () => {
+      clearTimeout(onTimer);
+      clearTimeout(offTimer);
+    };
+  }, [reactionId]);
+
+  const smiling = mood === "celebration" || waving;
 
   return (
     <div className="relative flex flex-col items-center">
@@ -149,18 +165,16 @@ export default function CatMascot({
               strokeWidth={3.6}
               strokeLinecap="round"
               className="transition-opacity duration-200"
-              style={{ opacity: mouthOpen ? 0 : 1 }}
+              style={{ opacity: smiling ? 0 : 1 }}
             />
-            <ellipse
-              cx={460}
-              cy={344}
-              rx={10}
-              ry={11}
-              fill="#8e5560"
-              stroke={OUTLINE}
-              strokeWidth={2.6}
+            <path
+              d="M432 334 Q460 368 488 334"
+              fill="none"
+              stroke={face}
+              strokeWidth={4.5}
+              strokeLinecap="round"
               className="transition-opacity duration-200"
-              style={{ opacity: mouthOpen ? 1 : 0 }}
+              style={{ opacity: smiling ? 1 : 0 }}
             />
 
             <g stroke={whisker} strokeWidth={2.4} strokeLinecap="round">
@@ -173,13 +187,15 @@ export default function CatMascot({
 
           <g>
             <rect x={408} y={442} width={36} height={30} rx={15} fill={coat} stroke={OUTLINE} strokeWidth={3.5} />
+            <path d="M420 458 v8 M432 458 v8" stroke={OUTLINE} strokeWidth={2.4} strokeLinecap="round" />
+          </g>
+          <g
+            key={reactionId}
+            className={waving ? "cat-paw-wave" : undefined}
+            style={{ transformOrigin: "494px 442px" }}
+          >
             <rect x={476} y={442} width={36} height={30} rx={15} fill={coat} stroke={OUTLINE} strokeWidth={3.5} />
-            <path
-              d="M420 458 v8 M432 458 v8 M488 458 v8 M500 458 v8"
-              stroke={OUTLINE}
-              strokeWidth={2.4}
-              strokeLinecap="round"
-            />
+            <path d="M488 458 v8 M500 458 v8" stroke={OUTLINE} strokeWidth={2.4} strokeLinecap="round" />
           </g>
         </g>
       </svg>

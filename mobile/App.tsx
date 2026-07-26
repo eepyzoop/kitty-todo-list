@@ -21,7 +21,7 @@ export default function App() {
     return () => sub.subscription.unsubscribe();
   }, []);
 
-  if (loading) return <View style={{ flex: 1, backgroundColor: "#faf7f2" }} />;
+  if (loading) return <View style={{ flex: 1, backgroundColor: "#f6f2fb" }} />;
 
   return (
     <>

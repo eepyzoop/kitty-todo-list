@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { User } from "@supabase/supabase-js";
 import { supabase } from "../lib/supabase";
 import type { CatChoice, Task } from "../lib/types";
@@ -101,7 +101,7 @@ export default function App() {
     return (
       <form onSubmit={login} style={{ padding: 20, display: "flex", flexDirection: "column", gap: 10 }}>
         <h1 style={{ fontSize: 18, margin: "0 0 8px", textAlign: "center" }}>
-          Task<span style={{ color: "#f4a259" }}>Kitty</span>
+          Task<span style={{ color: "#8b7cc4" }}>Kitty</span>
         </h1>
         {loginError && <p style={{ color: "#e05a5a", fontSize: 12, margin: 0 }}>{loginError}</p>}
         <input
@@ -123,7 +123,7 @@ export default function App() {
         <button type="submit" style={buttonStyle}>
           Log in
         </button>
-        <p style={{ fontSize: 11, color: "#a89fa2", textAlign: "center", margin: 0 }}>
+        <p style={{ fontSize: 11, color: "#9c8fb0", textAlign: "center", margin: 0 }}>
           Sign up on the TaskKitty web app first.
         </p>
       </form>
@@ -145,11 +145,18 @@ export default function App() {
             ? "reading"
             : "happy";
 
+  const prevDoneRef = useRef(done);
+  const [reactionId, setReactionId] = useState(0);
+  useEffect(() => {
+    if (done > prevDoneRef.current) setReactionId((id) => id + 1);
+    prevDoneRef.current = done;
+  }, [done]);
+
   return (
     <div style={{ padding: 16, display: "flex", flexDirection: "column", gap: 12 }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
         <ProgressRing percent={percent} />
-        <CatMascot coat={catChoice} mood={mood} />
+        <CatMascot coat={catChoice} mood={mood} reactionId={reactionId} />
       </div>
 
       <form
@@ -180,8 +187,8 @@ export default function App() {
                 width: 20,
                 height: 20,
                 borderRadius: "50%",
-                border: `2px solid ${task.done ? "#f4a259" : "#eee7de"}`,
-                background: task.done ? "#f4a259" : "transparent",
+                border: `2px solid ${task.done ? "#8b7cc4" : "#e6def5"}`,
+                background: task.done ? "#8b7cc4" : "transparent",
                 flexShrink: 0,
                 cursor: "pointer",
               }}
@@ -190,7 +197,7 @@ export default function App() {
               style={{
                 fontSize: 13,
                 textDecoration: task.done ? "line-through" : "none",
-                color: task.done ? "#a89fa2" : "#5a5254",
+                color: task.done ? "#9c8fb0" : "#59516b",
               }}
             >
               {task.title}
@@ -198,7 +205,7 @@ export default function App() {
           </li>
         ))}
         {tasks.length === 0 && (
-          <li style={{ fontSize: 12, color: "#a89fa2", textAlign: "center", padding: "8px 0" }}>
+          <li style={{ fontSize: 12, color: "#9c8fb0", textAlign: "center", padding: "8px 0" }}>
             No tasks yet.
           </li>
         )}
@@ -208,7 +215,7 @@ export default function App() {
 }
 
 const inputStyle: React.CSSProperties = {
-  border: "1.5px solid #eee7de",
+  border: "1.5px solid #e6def5",
   borderRadius: 999,
   padding: "6px 12px",
   fontSize: 13,
@@ -221,7 +228,7 @@ const buttonStyle: React.CSSProperties = {
   padding: "6px 14px",
   fontSize: 13,
   fontWeight: 600,
-  background: "#f4a259",
+  background: "#8b7cc4",
   color: "#fff",
   cursor: "pointer",
 };
