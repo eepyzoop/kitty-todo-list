@@ -69,6 +69,28 @@ export default function App() {
     };
   }, [user]);
 
+  const total = tasks.length;
+  const done = tasks.filter((t) => t.done).length;
+  const openCount = total - done;
+  const percent = total === 0 ? 0 : Math.round((done / total) * 100);
+  const mood: CatMood =
+    percent === 100
+      ? "celebration"
+      : openCount > 8
+        ? "worried"
+        : percent === 0
+          ? "sleepy"
+          : percent < 70
+            ? "reading"
+            : "happy";
+
+  const prevDoneRef = useRef(done);
+  const [reactionId, setReactionId] = useState(0);
+  useEffect(() => {
+    if (done > prevDoneRef.current) setReactionId((id) => id + 1);
+    prevDoneRef.current = done;
+  }, [done]);
+
   async function login(e: React.FormEvent) {
     e.preventDefault();
     setLoginError(null);
@@ -129,28 +151,6 @@ export default function App() {
       </form>
     );
   }
-
-  const total = tasks.length;
-  const done = tasks.filter((t) => t.done).length;
-  const openCount = total - done;
-  const percent = total === 0 ? 0 : Math.round((done / total) * 100);
-  const mood: CatMood =
-    percent === 100
-      ? "celebration"
-      : openCount > 8
-        ? "worried"
-        : percent === 0
-          ? "sleepy"
-          : percent < 70
-            ? "reading"
-            : "happy";
-
-  const prevDoneRef = useRef(done);
-  const [reactionId, setReactionId] = useState(0);
-  useEffect(() => {
-    if (done > prevDoneRef.current) setReactionId((id) => id + 1);
-    prevDoneRef.current = done;
-  }, [done]);
 
   return (
     <div style={{ padding: 16, display: "flex", flexDirection: "column", gap: 12 }}>
