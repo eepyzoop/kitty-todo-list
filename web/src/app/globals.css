@@ -8,6 +8,14 @@
   --line: #e6def5;
 }
 
+.dark {
+  --background: #1e1a29;
+  --foreground: #e8e3f5;
+  --card: #2a2438;
+  --accent: #a996e0;
+  --line: #423a56;
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
