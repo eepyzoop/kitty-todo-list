@@ -118,6 +118,3 @@ dark mode.
       there; verify on a machine with Rust set up).
 - [x] Repo is public, no secrets committed, all links tested incognito.
 
-## Two-week proposal
-
-<!-- PASTE THE POCKETPLATE PROPOSAL HERE -->
