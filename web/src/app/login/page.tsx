@@ -46,6 +46,11 @@ export default async function LoginPage({
             Sign up
           </Link>
         </p>
+        <p className="text-xs text-center text-foreground/50">
+          <Link href="/download" className="hover:text-accent transition">
+            Download the desktop, mobile, or extension build
+          </Link>
+        </p>
       </form>
     </main>
   );

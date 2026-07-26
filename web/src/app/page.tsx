@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { signOut } from "./login/actions";
 import TaskApp from "@/components/TaskApp";
@@ -27,6 +28,10 @@ export default async function Home() {
           Task<span className="text-accent">Kitty</span>
         </h1>
         <div className="flex items-center gap-2 text-sm text-foreground/70">
+          <Link href="/download" className="hover:text-accent transition">
+            Download apps
+          </Link>
+          <span>·</span>
           <UserGreeting
             userId={user!.id}
             email={user!.email!}

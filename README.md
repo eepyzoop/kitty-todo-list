@@ -8,7 +8,8 @@ realtime everywhere.
 
 ## Live
 
- **Web app:** https://web-delta-one-68.vercel.app
+- **Web app:** https://web-delta-one-68.vercel.app
+- **Downloads:** https://web-delta-one-68.vercel.app/download
 
 ## Task → feature map
 
@@ -17,8 +18,8 @@ realtime everywhere.
 | 1 | Auth + Tasks CRUD | `web/` |
 | 2 | Realtime sync (`postgres_changes` on `tasks`) | `web/src/components/TaskApp.tsx` |
 | 3 | Canvas progress ring + confetti + cat mascot | `web/src/components/ProgressPanel.tsx`, `Confetti.tsx`, `CatMascot.tsx`, `CatSection.tsx` |
-| 4 | Chrome extension popup | `extension/` |
-| 5 | Mobile (Expo) + Desktop (Tauri) | `mobile/`, `desktop/` |
+| 4 | Chrome extension popup — quick-capture a task from wherever you're browsing, without switching to the web app | `extension/` |
+| 5 | Mobile (Expo) — on-the-go add/check-off away from a laptop; Desktop (Tauri) — an always-open companion window, pinned/visible unlike a browser tab | `mobile/`, `desktop/` |
 
 ## Setup
 
@@ -80,4 +81,11 @@ npm run tauri dev
 Opens a window titled "TaskKitty" loading the deployed web URL above — no
 local frontend build, no custom Rust (see `src-tauri/src/main.rs`).
 
+## Downloads page (`/download`)
 
+Manual install instead of publishing to a store — not required for grading
+(the extension via `chrome://extensions` → Load unpacked, and the mobile
+app via Expo Go, already satisfy the demo), just a nicer way to hand the
+build to someone else. The Chrome extension `.zip` is pre-built and
+downloads for real; Windows and Android show the exact build command
+instead of a binary, since this repo doesn't ship pre-built installers.
