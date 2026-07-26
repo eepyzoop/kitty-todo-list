@@ -8,19 +8,17 @@ realtime everywhere.
 
 ## Live
 
-- **Web app:** https://web-delta-one-68.vercel.app
+ **Web app:** https://web-delta-one-68.vercel.app
 
 ## Task → feature map
 
 | Task | What it is | Where |
 |---|---|---|
-| 1 | Architecture — see notes below | (talking points, no code) |
-| 2 | Auth + Tasks CRUD | `web/` |
-| 3 | Realtime sync (`postgres_changes` on `tasks`) | `web/src/components/TaskApp.tsx` |
-| 4 | Canvas progress ring + confetti + cat mascot | `web/src/components/ProgressPanel.tsx`, `Confetti.tsx`, `CatMascot.tsx`, `CatSection.tsx` |
-| 5 | Chrome extension popup | `extension/` |
-| 6 | Mobile (Expo) + Desktop (Tauri) | `mobile/`, `desktop/` |
-| 7 | Public repo & deployment | this repo + the Vercel URL above |
+| 1 | Auth + Tasks CRUD | `web/` |
+| 2 | Realtime sync (`postgres_changes` on `tasks`) | `web/src/components/TaskApp.tsx` |
+| 3 | Canvas progress ring + confetti + cat mascot | `web/src/components/ProgressPanel.tsx`, `Confetti.tsx`, `CatMascot.tsx`, `CatSection.tsx` |
+| 4 | Chrome extension popup | `extension/` |
+| 5 | Mobile (Expo) + Desktop (Tauri) | `mobile/`, `desktop/` |
 
 ## Setup
 
