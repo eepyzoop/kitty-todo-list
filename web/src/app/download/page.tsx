@@ -1,4 +1,5 @@
 import Link from "next/link";
+import ThemeToggle from "@/components/ThemeToggle";
 
 function DownloadCard({
   title,
@@ -38,9 +39,12 @@ export default function DownloadPage() {
         <h1 className="text-2xl font-medium">
           Task<span className="text-accent">Kitty</span>
         </h1>
-        <Link href="/" className="text-sm text-foreground/70 hover:text-accent transition">
-          Back to app
-        </Link>
+        <div className="flex items-center gap-3 text-sm text-foreground/70">
+          <Link href="/" className="hover:text-accent transition">
+            Back to app
+          </Link>
+          <ThemeToggle />
+        </div>
       </header>
 
       <p className="w-full max-w-4xl text-sm text-foreground/70 -mt-2">

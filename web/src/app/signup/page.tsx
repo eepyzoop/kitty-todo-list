@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { signUp } from "../login/actions";
+import ThemeToggle from "@/components/ThemeToggle";
 
 export default async function SignupPage({
   searchParams,
@@ -9,7 +10,10 @@ export default async function SignupPage({
   const { error } = await searchParams;
 
   return (
-    <main className="flex flex-1 items-center justify-center p-6">
+    <main className="relative flex flex-1 items-center justify-center p-6">
+      <div className="fixed top-4 right-4 z-40">
+        <ThemeToggle />
+      </div>
       <form
         action={signUp}
         className="w-full max-w-sm bg-card border border-line rounded-3xl p-8 flex flex-col gap-4"

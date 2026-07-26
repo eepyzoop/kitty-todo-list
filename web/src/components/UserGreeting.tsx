@@ -5,11 +5,9 @@ import { createClient } from "@/lib/supabase/client";
 
 export default function UserGreeting({
   userId,
-  email,
   initialDisplayName,
 }: {
   userId: string;
-  email: string;
   initialDisplayName: string | null;
 }) {
   const [name, setName] = useState(initialDisplayName);
@@ -31,7 +29,9 @@ export default function UserGreeting({
 
   return (
     <>
-      <span>{name ?? email}</span>
+      <span className="absolute left-1/2 -translate-x-1/2 text-lg font-medium text-foreground/80">
+        {name ? `${name}'s todo` : "Your todo"}
+      </span>
       {asking && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/20 animate-modal-fade">
           <form

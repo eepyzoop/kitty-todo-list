@@ -21,7 +21,7 @@ export default function ThemeToggle() {
       onClick={toggle}
       aria-label={dark ? "Switch to light mode" : "Switch to dark mode"}
       title={dark ? "Switch to light mode" : "Switch to dark mode"}
-      className="fixed top-4 right-4 z-50 w-9 h-9 rounded-full bg-card border border-line flex items-center justify-center text-base hover:border-accent transition"
+      className="shrink-0 w-7 h-7 rounded-full bg-card border border-line flex items-center justify-center text-sm hover:border-accent transition"
     >
       {dark ? "☀️" : "🌙"}
     </button>

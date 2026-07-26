@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Varela_Round } from "next/font/google";
 import "./globals.css";
-import ThemeToggle from "@/components/ThemeToggle";
 
 const varela = Varela_Round({
   variable: "--font-varela",
@@ -37,10 +36,7 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className="min-h-full flex flex-col font-sans">
-        <ThemeToggle />
-        {children}
-      </body>
+      <body className="min-h-full flex flex-col font-sans">{children}</body>
     </html>
   );
 }
