@@ -5,6 +5,10 @@ body {
   color: #59516b;
 }
 
+#root {
+  width: 360px;
+}
+
 button,
 input {
   font-family: inherit;

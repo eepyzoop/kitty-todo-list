@@ -3,7 +3,6 @@ import type { User } from "@supabase/supabase-js";
 import { supabase } from "../lib/supabase";
 import type { CatChoice, Task } from "../lib/types";
 import CatMascot, { type CatMood } from "../components/CatMascot";
-import ProgressRing from "../components/ProgressRing";
 
 export default function App() {
   const [user, setUser] = useState<User | null>(null);
@@ -117,6 +116,10 @@ export default function App() {
     await supabase.from("tasks").update({ done, done_at }).eq("id", task.id);
   }
 
+  async function logout() {
+    await supabase.auth.signOut();
+  }
+
   if (loading) return null;
 
   if (!user) {
@@ -152,64 +155,105 @@ export default function App() {
     );
   }
 
+  const emailLocalPart = user.email?.split("@")[0] ?? "";
+  const greeting = emailLocalPart ? `${emailLocalPart}'s todo` : "Todo";
+
   return (
-    <div style={{ padding: 16, display: "flex", flexDirection: "column", gap: 12 }}>
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-        <ProgressRing percent={percent} />
+    <div style={{ position: "relative", overflow: "visible", padding: "16px 16px 12px" }}>
+      <div style={{ position: "absolute", top: -16, right: 12, zIndex: 2, pointerEvents: "none" }}>
         <CatMascot coat={catChoice} mood={mood} reactionId={reactionId} />
       </div>
 
-      <form
-        onSubmit={(e) => {
-          e.preventDefault();
-          addTask();
-        }}
-        style={{ display: "flex", gap: 6 }}
-      >
-        <input
-          value={newTitle}
-          onChange={(e) => setNewTitle(e.target.value)}
-          placeholder="Add a task…"
-          style={{ ...inputStyle, flex: 1 }}
-        />
-        <button type="submit" style={buttonStyle}>
-          Add
-        </button>
-      </form>
+      <div style={{ paddingTop: 34, display: "flex", flexDirection: "column", gap: 10 }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", paddingRight: 70 }}>
+          <span style={{ fontSize: 14, fontWeight: 600 }}>{greeting}</span>
+          <button
+            onClick={logout}
+            title="Log out"
+            style={{ border: "none", background: "none", color: "#9c8fb0", fontSize: 12, cursor: "pointer", padding: 0 }}
+          >
+            Log out
+          </button>
+        </div>
 
-      <ul style={{ listStyle: "none", margin: 0, padding: 0, display: "flex", flexDirection: "column", gap: 6 }}>
-        {tasks.map((task) => (
-          <li key={task.id} style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <button
-              onClick={() => toggleTask(task)}
-              aria-label={task.done ? "Mark as not done" : "Mark as done"}
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <div style={{ flex: 1, height: 6, borderRadius: 999, background: "#e6def5", overflow: "hidden" }}>
+            <div
               style={{
-                width: 20,
-                height: 20,
-                borderRadius: "50%",
-                border: `2px solid ${task.done ? "#8b7cc4" : "#e6def5"}`,
-                background: task.done ? "#8b7cc4" : "transparent",
-                flexShrink: 0,
-                cursor: "pointer",
+                height: "100%",
+                width: `${percent}%`,
+                borderRadius: 999,
+                background: "#8b7cc4",
+                transition: "width 0.4s ease",
               }}
             />
-            <span
-              style={{
-                fontSize: 13,
-                textDecoration: task.done ? "line-through" : "none",
-                color: task.done ? "#9c8fb0" : "#59516b",
-              }}
-            >
-              {task.title}
-            </span>
-          </li>
-        ))}
-        {tasks.length === 0 && (
-          <li style={{ fontSize: 12, color: "#9c8fb0", textAlign: "center", padding: "8px 0" }}>
-            No tasks yet.
-          </li>
-        )}
-      </ul>
+          </div>
+          <span style={{ fontSize: 11, color: "#9c8fb0", minWidth: 28, textAlign: "right" }}>{percent}%</span>
+        </div>
+
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            addTask();
+          }}
+          style={{ display: "flex", gap: 6 }}
+        >
+          <input
+            value={newTitle}
+            onChange={(e) => setNewTitle(e.target.value)}
+            placeholder="Add a task…"
+            style={{ ...inputStyle, flex: 1 }}
+          />
+          <button type="submit" style={buttonStyle}>
+            Add
+          </button>
+        </form>
+
+        <ul
+          style={{
+            listStyle: "none",
+            margin: 0,
+            padding: 0,
+            display: "flex",
+            flexDirection: "column",
+            gap: 6,
+            maxHeight: 220,
+            overflowY: "auto",
+          }}
+        >
+          {tasks.map((task) => (
+            <li key={task.id} style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <button
+                onClick={() => toggleTask(task)}
+                aria-label={task.done ? "Mark as not done" : "Mark as done"}
+                style={{
+                  width: 20,
+                  height: 20,
+                  borderRadius: "50%",
+                  border: `2px solid ${task.done ? "#8b7cc4" : "#e6def5"}`,
+                  background: task.done ? "#8b7cc4" : "transparent",
+                  flexShrink: 0,
+                  cursor: "pointer",
+                }}
+              />
+              <span
+                style={{
+                  fontSize: 13,
+                  textDecoration: task.done ? "line-through" : "none",
+                  color: task.done ? "#9c8fb0" : "#59516b",
+                }}
+              >
+                {task.title}
+              </span>
+            </li>
+          ))}
+          {tasks.length === 0 && (
+            <li style={{ fontSize: 12, color: "#9c8fb0", textAlign: "center", padding: "8px 0" }}>
+              No tasks yet.
+            </li>
+          )}
+        </ul>
+      </div>
     </div>
   );
 }
