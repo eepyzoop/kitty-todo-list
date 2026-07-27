@@ -1,8 +1,7 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import type { User } from "@supabase/supabase-js";
 import { supabase } from "../lib/supabase";
-import type { CatChoice, Task } from "../lib/types";
-import CatMascot, { type CatMood } from "../components/CatMascot";
+import type { Task } from "../lib/types";
 
 export default function App() {
   const [user, setUser] = useState<User | null>(null);
@@ -12,30 +11,11 @@ export default function App() {
   const [loginError, setLoginError] = useState<string | null>(null);
 
   const [tasks, setTasks] = useState<Task[]>([]);
-  const [catChoice, setCatChoice] = useState<CatChoice>("mikan");
   const [newTitle, setNewTitle] = useState("");
 
   const total = tasks.length;
   const done = tasks.filter((t) => t.done).length;
-  const openCount = total - done;
   const percent = total === 0 ? 0 : Math.round((done / total) * 100);
-  const mood: CatMood =
-    percent === 100
-      ? "celebration"
-      : openCount > 8
-        ? "worried"
-        : percent === 0
-          ? "sleepy"
-          : percent < 70
-            ? "reading"
-            : "happy";
-
-  const prevDoneRef = useRef(done);
-  const [reactionId, setReactionId] = useState(0);
-  useEffect(() => {
-    if (done > prevDoneRef.current) setReactionId((id) => id + 1);
-    prevDoneRef.current = done;
-  }, [done]);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -57,13 +37,6 @@ export default function App() {
       .eq("user_id", user.id)
       .order("created_at", { ascending: true })
       .then(({ data }) => setTasks(data ?? []));
-
-    supabase
-      .from("profiles")
-      .select("cat_choice")
-      .eq("id", user.id)
-      .single()
-      .then(({ data }) => setCatChoice((data?.cat_choice as CatChoice) ?? "mikan"));
 
     const channel = supabase
       .channel(`tasks-${user.id}`)
@@ -126,7 +99,7 @@ export default function App() {
     return (
       <form onSubmit={login} style={{ padding: 20, display: "flex", flexDirection: "column", gap: 10 }}>
         <h1 style={{ fontSize: 18, margin: "0 0 8px", textAlign: "center" }}>
-          Task<span style={{ color: "#8b7cc4" }}>Kitty</span>
+          🐱 Task<span style={{ color: "#8b7cc4" }}>Kitty</span>
         </h1>
         {loginError && <p style={{ color: "#e05a5a", fontSize: 12, margin: 0 }}>{loginError}</p>}
         <input
@@ -159,100 +132,124 @@ export default function App() {
   const greeting = emailLocalPart ? `${emailLocalPart}'s todo` : "Todo";
 
   return (
-    <div style={{ position: "relative", overflow: "visible", padding: "16px 16px 12px" }}>
-      <div style={{ position: "absolute", top: -16, right: 12, zIndex: 2, pointerEvents: "none" }}>
-        <CatMascot coat={catChoice} mood={mood} reactionId={reactionId} />
-      </div>
+    <div style={{ padding: 12, display: "flex", flexDirection: "column", gap: 8 }}>
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          addTask();
+        }}
+        style={{ display: "flex", gap: 6 }}
+      >
+        <input
+          autoFocus
+          value={newTitle}
+          onChange={(e) => setNewTitle(e.target.value)}
+          placeholder="Add a task…"
+          style={{ ...inputStyle, flex: 1 }}
+        />
+        <button type="submit" style={buttonStyle}>
+          Add
+        </button>
+      </form>
 
-      <div style={{ paddingTop: 34, display: "flex", flexDirection: "column", gap: 10 }}>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", paddingRight: 70 }}>
-          <span style={{ fontSize: 14, fontWeight: 600 }}>{greeting}</span>
-          <button
-            onClick={logout}
-            title="Log out"
-            style={{ border: "none", background: "none", color: "#9c8fb0", fontSize: 12, cursor: "pointer", padding: 0 }}
-          >
-            Log out
-          </button>
-        </div>
-
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <div style={{ flex: 1, height: 6, borderRadius: 999, background: "#e6def5", overflow: "hidden" }}>
-            <div
+      <ul
+        style={{
+          listStyle: "none",
+          margin: 0,
+          padding: 0,
+          display: "flex",
+          flexDirection: "column",
+          gap: 6,
+          maxHeight: 220,
+          overflowY: "auto",
+        }}
+      >
+        {tasks.map((task) => (
+          <li key={task.id} style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <button
+              onClick={() => toggleTask(task)}
+              aria-label={task.done ? "Mark as not done" : "Mark as done"}
               style={{
-                height: "100%",
-                width: `${percent}%`,
-                borderRadius: 999,
-                background: "#8b7cc4",
-                transition: "width 0.4s ease",
+                width: 20,
+                height: 20,
+                borderRadius: "50%",
+                border: `2px solid ${task.done ? "#8b7cc4" : "#e6def5"}`,
+                background: task.done ? "#8b7cc4" : "transparent",
+                flexShrink: 0,
+                cursor: "pointer",
               }}
             />
-          </div>
-          <span style={{ fontSize: 11, color: "#9c8fb0", minWidth: 28, textAlign: "right" }}>{percent}%</span>
-        </div>
+            <span
+              style={{
+                fontSize: 13,
+                textDecoration: task.done ? "line-through" : "none",
+                color: task.done ? "#9c8fb0" : "#59516b",
+              }}
+            >
+              {task.title}
+            </span>
+          </li>
+        ))}
+        {tasks.length === 0 && (
+          <li style={{ fontSize: 12, color: "#9c8fb0", textAlign: "center", padding: "8px 0" }}>
+            No tasks yet.
+          </li>
+        )}
+      </ul>
 
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            addTask();
-          }}
-          style={{ display: "flex", gap: 6 }}
-        >
-          <input
-            value={newTitle}
-            onChange={(e) => setNewTitle(e.target.value)}
-            placeholder="Add a task…"
-            style={{ ...inputStyle, flex: 1 }}
-          />
-          <button type="submit" style={buttonStyle}>
-            Add
-          </button>
-        </form>
-
-        <ul
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: 8,
+          background: "#e6def5",
+          borderRadius: 999,
+          padding: "6px 10px",
+        }}
+      >
+        <span
           style={{
-            listStyle: "none",
-            margin: 0,
+            fontSize: 12,
+            fontWeight: 600,
+            whiteSpace: "nowrap",
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+          }}
+        >
+          {greeting}
+        </span>
+        <div style={{ flex: 1, height: 6, borderRadius: 999, background: "#fff", overflow: "hidden" }}>
+          <div
+            style={{
+              height: "100%",
+              width: `${percent}%`,
+              borderRadius: 999,
+              background: "#8b7cc4",
+              transition: "width 0.4s ease",
+            }}
+          />
+        </div>
+        <span style={{ fontSize: 11, color: "#59516b", minWidth: 26, textAlign: "right" }}>{percent}%</span>
+        <button
+          onClick={logout}
+          title="Log out"
+          aria-label="Log out"
+          style={{
+            border: "none",
+            background: "none",
             padding: 0,
             display: "flex",
-            flexDirection: "column",
-            gap: 6,
-            maxHeight: 220,
-            overflowY: "auto",
+            cursor: "pointer",
+            color: "#59516b",
+            flexShrink: 0,
           }}
         >
-          {tasks.map((task) => (
-            <li key={task.id} style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              <button
-                onClick={() => toggleTask(task)}
-                aria-label={task.done ? "Mark as not done" : "Mark as done"}
-                style={{
-                  width: 20,
-                  height: 20,
-                  borderRadius: "50%",
-                  border: `2px solid ${task.done ? "#8b7cc4" : "#e6def5"}`,
-                  background: task.done ? "#8b7cc4" : "transparent",
-                  flexShrink: 0,
-                  cursor: "pointer",
-                }}
-              />
-              <span
-                style={{
-                  fontSize: 13,
-                  textDecoration: task.done ? "line-through" : "none",
-                  color: task.done ? "#9c8fb0" : "#59516b",
-                }}
-              >
-                {task.title}
-              </span>
-            </li>
-          ))}
-          {tasks.length === 0 && (
-            <li style={{ fontSize: 12, color: "#9c8fb0", textAlign: "center", padding: "8px 0" }}>
-              No tasks yet.
-            </li>
-          )}
-        </ul>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+            <polyline points="16 17 21 12 16 7" />
+            <line x1="21" y1="12" x2="9" y2="12" />
+          </svg>
+        </button>
       </div>
     </div>
   );
