@@ -89,6 +89,11 @@ export default function App() {
     await supabase.from("tasks").update({ done, done_at }).eq("id", task.id);
   }
 
+  async function deleteTask(task: Task) {
+    setTasks((prev) => prev.filter((t) => t.id !== task.id));
+    await supabase.from("tasks").delete().eq("id", task.id);
+  }
+
   async function logout() {
     await supabase.auth.signOut();
   }
@@ -181,6 +186,7 @@ export default function App() {
             />
             <span
               style={{
+                flex: 1,
                 fontSize: 13,
                 textDecoration: task.done ? "line-through" : "none",
                 color: task.done ? "#9c8fb0" : "#59516b",
@@ -188,6 +194,21 @@ export default function App() {
             >
               {task.title}
             </span>
+            <button
+              onClick={() => deleteTask(task)}
+              aria-label="Delete task"
+              style={{
+                border: "none",
+                background: "none",
+                padding: 0,
+                cursor: "pointer",
+                color: "#9c8fb0",
+                fontSize: 13,
+                flexShrink: 0,
+              }}
+            >
+              ✕
+            </button>
           </li>
         ))}
         {tasks.length === 0 && (
