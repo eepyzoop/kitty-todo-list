@@ -16,6 +16,28 @@ export default function App() {
   const [catChoice, setCatChoice] = useState<CatChoice>("mikan");
   const [newTitle, setNewTitle] = useState("");
 
+  const total = tasks.length;
+  const done = tasks.filter((t) => t.done).length;
+  const openCount = total - done;
+  const percent = total === 0 ? 0 : Math.round((done / total) * 100);
+  const mood: CatMood =
+    percent === 100
+      ? "celebration"
+      : openCount > 8
+        ? "worried"
+        : percent === 0
+          ? "sleepy"
+          : percent < 70
+            ? "reading"
+            : "happy";
+
+  const prevDoneRef = useRef(done);
+  const [reactionId, setReactionId] = useState(0);
+  useEffect(() => {
+    if (done > prevDoneRef.current) setReactionId((id) => id + 1);
+    prevDoneRef.current = done;
+  }, [done]);
+
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null);
@@ -68,28 +90,6 @@ export default function App() {
       supabase.removeChannel(channel);
     };
   }, [user]);
-
-  const total = tasks.length;
-  const done = tasks.filter((t) => t.done).length;
-  const openCount = total - done;
-  const percent = total === 0 ? 0 : Math.round((done / total) * 100);
-  const mood: CatMood =
-    percent === 100
-      ? "celebration"
-      : openCount > 8
-        ? "worried"
-        : percent === 0
-          ? "sleepy"
-          : percent < 70
-            ? "reading"
-            : "happy";
-
-  const prevDoneRef = useRef(done);
-  const [reactionId, setReactionId] = useState(0);
-  useEffect(() => {
-    if (done > prevDoneRef.current) setReactionId((id) => id + 1);
-    prevDoneRef.current = done;
-  }, [done]);
 
   async function login(e: React.FormEvent) {
     e.preventDefault();
