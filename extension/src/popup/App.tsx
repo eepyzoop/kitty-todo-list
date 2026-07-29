@@ -13,6 +13,11 @@ export default function App() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [newTitle, setNewTitle] = useState("");
 
+  const [displayName, setDisplayName] = useState<string | null>(null);
+  const [profileLoaded, setProfileLoaded] = useState(false);
+  const [editingName, setEditingName] = useState(false);
+  const [nameInput, setNameInput] = useState("");
+
   const total = tasks.length;
   const done = tasks.filter((t) => t.done).length;
   const percent = total === 0 ? 0 : Math.round((done / total) * 100);
@@ -27,6 +32,19 @@ export default function App() {
     });
     return () => sub.subscription.unsubscribe();
   }, []);
+
+  useEffect(() => {
+    if (!user) return;
+    supabase
+      .from("profiles")
+      .select("display_name")
+      .eq("id", user.id)
+      .single()
+      .then(({ data }) => {
+        setDisplayName(data?.display_name ?? null);
+        setProfileLoaded(true);
+      });
+  }, [user]);
 
   useEffect(() => {
     if (!user) return;
@@ -98,6 +116,19 @@ export default function App() {
     await supabase.auth.signOut();
   }
 
+  async function saveName() {
+    const trimmed = nameInput.trim();
+    if (!trimmed || !user) return;
+    setDisplayName(trimmed);
+    setEditingName(false);
+    await supabase.from("profiles").update({ display_name: trimmed }).eq("id", user.id);
+  }
+
+  function openEditName() {
+    setNameInput(displayName ?? "");
+    setEditingName(true);
+  }
+
   if (loading) return null;
 
   if (!user) {
@@ -133,8 +164,47 @@ export default function App() {
     );
   }
 
-  const emailLocalPart = user.email?.split("@")[0] ?? "";
-  const greeting = emailLocalPart ? `${emailLocalPart}'s todo` : "Todo";
+  if (!profileLoaded) return null;
+
+  if (!displayName || editingName) {
+    return (
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          saveName();
+        }}
+        style={{ padding: 20, display: "flex", flexDirection: "column", gap: 10 }}
+      >
+        <h1 style={{ fontSize: 18, margin: "0 0 8px", textAlign: "center" }}>
+          🐱 Task<span style={{ color: "#8b7cc4" }}>Kitty</span>
+        </h1>
+        <p style={{ fontSize: 13, textAlign: "center", margin: 0, color: "#59516b" }}>
+          What should I call you?
+        </p>
+        <input
+          autoFocus
+          value={nameInput}
+          onChange={(e) => setNameInput(e.target.value)}
+          placeholder="Your name…"
+          style={inputStyle}
+        />
+        <button type="submit" style={buttonStyle}>
+          {displayName ? "Save" : "Nice to meet you!"}
+        </button>
+        {displayName && (
+          <button
+            type="button"
+            onClick={() => setEditingName(false)}
+            style={{ border: "none", background: "none", color: "#9c8fb0", fontSize: 12, cursor: "pointer" }}
+          >
+            Cancel
+          </button>
+        )}
+      </form>
+    );
+  }
+
+  const greeting = `${displayName}'s todo`;
 
   return (
     <div style={{ padding: 12, display: "flex", flexDirection: "column", gap: 8 }}>
@@ -228,17 +298,25 @@ export default function App() {
           padding: "6px 10px",
         }}
       >
-        <span
+        <button
+          onClick={openEditName}
+          title="Edit name"
           style={{
+            border: "none",
+            background: "none",
+            padding: 0,
+            cursor: "pointer",
+            textAlign: "left",
             fontSize: 12,
             fontWeight: 600,
+            color: "#59516b",
             whiteSpace: "nowrap",
             overflow: "hidden",
             textOverflow: "ellipsis",
           }}
         >
           {greeting}
-        </span>
+        </button>
         <div style={{ flex: 1, height: 6, borderRadius: 999, background: "#fff", overflow: "hidden" }}>
           <div
             style={{

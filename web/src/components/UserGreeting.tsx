@@ -27,11 +27,21 @@ export default function UserGreeting({
     if (error) alert(error.message);
   }
 
+  function openEdit() {
+    setInput(name ?? "");
+    setAsking(true);
+  }
+
   return (
     <>
-      <span className="absolute left-1/2 -translate-x-1/2 text-lg font-medium text-foreground/80">
-        {name ? `${name}'s todo` : "Your todo"}
-      </span>
+      {name && (
+        <>
+          <button onClick={openEdit} className="hover:text-accent transition">
+            Hi, {name}
+          </button>
+          <span>·</span>
+        </>
+      )}
       {asking && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/20 animate-modal-fade">
           <form
