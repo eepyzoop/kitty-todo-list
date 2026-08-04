@@ -284,6 +284,15 @@ function TaskRow({
         </span>
       )}
 
+      {!editing && (
+        <button
+          onClick={onStartEdit}
+          aria-label="Edit task"
+          className="shrink-0 text-foreground/30 hover:text-accent transition opacity-0 group-hover:opacity-100"
+        >
+          ✎
+        </button>
+      )}
       <button
         onClick={onDelete}
         aria-label="Delete task"

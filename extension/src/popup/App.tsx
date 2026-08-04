@@ -12,6 +12,8 @@ export default function App() {
 
   const [tasks, setTasks] = useState<Task[]>([]);
   const [newTitle, setNewTitle] = useState("");
+  const [editingTaskId, setEditingTaskId] = useState<string | null>(null);
+  const [editingTaskValue, setEditingTaskValue] = useState("");
 
   const [displayName, setDisplayName] = useState<string | null>(null);
   const [profileLoaded, setProfileLoaded] = useState(false);
@@ -110,6 +112,19 @@ export default function App() {
   async function deleteTask(task: Task) {
     setTasks((prev) => prev.filter((t) => t.id !== task.id));
     await supabase.from("tasks").delete().eq("id", task.id);
+  }
+
+  function startEditTask(task: Task) {
+    setEditingTaskId(task.id);
+    setEditingTaskValue(task.title);
+  }
+
+  async function saveEditTask(task: Task) {
+    const title = editingTaskValue.trim();
+    setEditingTaskId(null);
+    if (!title || title === task.title) return;
+    setTasks((prev) => prev.map((t) => (t.id === task.id ? { ...t, title } : t)));
+    await supabase.from("tasks").update({ title }).eq("id", task.id);
   }
 
   async function logout() {
@@ -254,16 +269,47 @@ export default function App() {
                 cursor: "pointer",
               }}
             />
-            <span
-              style={{
-                flex: 1,
-                fontSize: 13,
-                textDecoration: task.done ? "line-through" : "none",
-                color: task.done ? "#9c8fb0" : "#59516b",
-              }}
-            >
-              {task.title}
-            </span>
+            {editingTaskId === task.id ? (
+              <input
+                autoFocus
+                value={editingTaskValue}
+                onChange={(e) => setEditingTaskValue(e.target.value)}
+                onBlur={() => saveEditTask(task)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") saveEditTask(task);
+                  if (e.key === "Escape") setEditingTaskId(null);
+                }}
+                style={{ ...inputStyle, flex: 1, padding: "2px 8px" }}
+              />
+            ) : (
+              <span
+                style={{
+                  flex: 1,
+                  fontSize: 13,
+                  textDecoration: task.done ? "line-through" : "none",
+                  color: task.done ? "#9c8fb0" : "#59516b",
+                }}
+              >
+                {task.title}
+              </span>
+            )}
+            {editingTaskId !== task.id && (
+              <button
+                onClick={() => startEditTask(task)}
+                aria-label="Edit task"
+                style={{
+                  border: "none",
+                  background: "none",
+                  padding: 0,
+                  cursor: "pointer",
+                  color: "#9c8fb0",
+                  fontSize: 13,
+                  flexShrink: 0,
+                }}
+              >
+                ✎
+              </button>
+            )}
             <button
               onClick={() => deleteTask(task)}
               aria-label="Delete task"
